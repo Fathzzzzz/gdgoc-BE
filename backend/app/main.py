@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
+from app.modules.recommendations.router import router as recommendations
 from app.modules.auth.router import router as auth
 from app.modules.movies.router import router as movies
 from app.modules.watchlist.router import router as watchlist
@@ -36,7 +37,7 @@ async def request_timing(request: Request, call_next):
     logger.info("%s %s %d %.1fms", request.method, request.url.path, response.status_code, (time.perf_counter()-start)*1000)
     return response
 
-for router in [auth, movies, watchlist, reviews]:
+for router in [auth, recommendations, movies, watchlist, reviews]:
     app.include_router(router, prefix="/api")
 
 @app.get("/health", tags=["Health"])
