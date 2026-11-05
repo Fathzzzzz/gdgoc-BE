@@ -418,7 +418,7 @@ async function openMovieDetail(movieId) {
             <span>${isWatchlisted ? 'Remove from Watchlist' : 'Add to Watchlist'}</span>
           </button>
 
-          <button onclick="closeMovieDetailModal(); openWatchedModal(${movie.id})" class="py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-surfaceHover hover:bg-amber-400 hover:text-black border border-brand-border text-white flex items-center justify-center gap-2 transition">
+          <button onclick="openWatchedModal(${movie.id})" class="py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-surfaceHover hover:bg-amber-400 hover:text-black border border-brand-border text-white flex items-center justify-center gap-2 transition">
             <i data-lucide="star" class="w-4 h-4"></i>
             <span>Log Review</span>
           </button>

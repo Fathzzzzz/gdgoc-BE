@@ -41,3 +41,30 @@ Payload tambahan companion diabaikan; movieId/movie_id dan review/opinion diteri
 5. API key dibiarkan kosong karena pengguna belum memberikan kredensial. Model default dapat diubah melalui .env; keberadaan konfigurasi bukan bukti integrasi nyata berhasil.
 
 Rujukan implementasi: https://ai.google.dev/api/generate-content dan https://ai.google.dev/gemini-api/docs/structured-output (diperiksa 5 November 2026). Gemini tidak diganti film acak saat gagal.
+
+## Tahap 5 — Integrasi dan verifikasi
+1. Menambahkan escapeHtml dan pembatasan URL poster pada companion, serta memperbaiki petunjuk server statis.
+2. Menemukan timer closeMovieDetailModal yang dapat menutup form review yang baru dibuka; transisi kini mengganti isi modal yang sama tanpa menjadwalkan penutupan.
+3. Unduhan psycopg-binary sempat timeout dan dilanjutkan pip; instalasi akhirnya berhasil. pip check tidak menemukan dependency rusak.
+4. Menjalankan alembic upgrade head, seed dua kali, dan alembic check: tidak ada perbedaan skema/model.
+5. Menjalankan 27 tes PostgreSQL: seluruhnya lulus (1,24 detik pada run awal). Tes termasuk dua request watchlist bersamaan, isolasi dua akun, serta mock kegagalan dan keluaran Gemini.
+6. Memeriksa sintaks JS dan menjalankan tes renderer frontend: lulus.
+7. Menguji di browser: registrasi demo-browser@example.com, login, detail Inception, tambah watchlist, formulir review, simpan, riwayat, dan pesan AI tanpa key. Markup <b> pada ulasan tampil sebagai teks.
+8. Menjalankan seed saat data demo tersedia: jumlah [film,user,watchlist,review] tetap [20,1,1,1]. Restart container PostgreSQL, periksa jumlah yang sama dan reload browser: data masih tersedia.
+9. Menghapus watchlist demo melalui frontend: HTTP 204, daftar menjadi kosong. Satu akun demo dan satu ulasan sengaja tersisa untuk melihat hasil lokal.
+10. Membekukan dependency ke requirements.lock.txt, menulis README, ERD, laporan tutorial, panduan video dan hasil verifikasi.
+
+## Commit yang dibuat
+- 9a82246: konfigurasi lokal, Docker dan dependency.
+- 0143ec4: model database, Alembic dan seeding.
+- 311af26: JWT dan fitur inti.
+- af45d42: integrasi Gemini dan grounding.
+- 2a2eaa1: rendering frontend aman dan petunjuk fallback.
+- Commit final menyimpan pengujian, perbaikan hasil pemeriksaan, dependency terkunci dan laporan. Gunakan git log untuk hash terakhir; hash commit tidak dapat dimuat dalam isi commit itu sendiri.
+
+Catatan: beberapa file tahap berikutnya ditulis sebelum staging tahap sebelumnya. Commit dipisahkan berdasarkan bagian perubahan, tanpa memalsukan tanggal atau menulis ulang riwayat. Semua validasi menyeluruh dilakukan setelah integrasi.
+
+## Pemeriksaan akhir tambahan
+- Setelah backend dimulai ulang, HTTP langsung mengonfirmasi katalog 20 film, login, satu riwayat demo, watchlist kosong, OpenAPI, dan AI 503 tanpa key. Hash Argon2 diverifikasi tanpa mencetak hash atau token.
+- Menemukan bahwa server statis umum dari root dapat membuka .env. Membuat scripts/serve_frontend.py yang hanya melayani frontend/ dan data/, mengganti server percobaan, serta menambah test akses file privat/traversal. Petunjuk README diperbarui. Ini koreksi dari langkah server awal, bukan fitur starter.
+- Run akhir: 28 tests, ditambah pemeriksaan renderer JavaScript; semua lulus. Tidak ada rahasia yang dilacak Git.
