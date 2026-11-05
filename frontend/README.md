@@ -12,10 +12,9 @@ Pilih salah satu cara paling mudah:
 
 ### Opsi 1: Menggunakan Python (Tersedia di hampir semua OS)
 ```bash
-cd frontend
-python3 -m http.server 3000
+python3 -m http.server 3000 --directory .
 ```
-Buka browser di: `http://localhost:3000`
+Buka browser di: `http://localhost:3000/frontend/`
 
 ### Opsi 2: Menggunakan Node / npx
 ```bash
@@ -61,3 +60,9 @@ Jika backend Anda berjalan di port lain (misal `:3000`, `:5000`, atau live URL R
    - Backend harus memanfaatkan Gemini API untuk memilihkan film **yang tersedia di database lokal** beserta alasan logisnya.
 7. **📡 API Inspector (Drawer di bagian bawah)**:
    - Mencatat setiap HTTP method, URL, status code (200, 401, 500, dll.), dan durasi request secara *real-time* untuk mempermudah debugging backend.
+
+## Catatan integrasi FilmLog
+Jalankan server statis dari root repository dan buka `/frontend/`, agar fallback
+`../data/movies.json` dapat diakses. Data fallback bukan bukti backend berjalan.
+Tampilan dipertahankan; interpolasi teks API di-escape dan URL poster dibatasi
+ke HTTP(S). Filter dan shuffle UI berjalan di browser; backend juga menyediakan query.

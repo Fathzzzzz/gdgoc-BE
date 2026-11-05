@@ -1,3 +1,14 @@
+// Escape untrusted text before placing it in HTML templates.
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function safeImageUrl(value) {
+  try {
+    const url = new URL(value);
+    return ['https:', 'http:'].includes(url.protocol) ? escapeHtml(url.href) : '';
+  } catch { return ''; }
+}
+
 /**
  * FilmLog — Frontend Companion for GDGoC Backend Assignment
  * Lightweight, zero-build Single Page Application.
@@ -101,13 +112,13 @@ function logApiRequest(logItem) {
       <div class="flex items-center gap-2 overflow-hidden">
         <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${
           l.ok ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'
-        }">${l.method}</span>
-        <span class="text-white truncate max-w-xs sm:max-w-md">${l.url}</span>
+        }">${escapeHtml(l.method)}</span>
+        <span class="text-white truncate max-w-xs sm:max-w-md">${escapeHtml(l.url)}</span>
       </div>
       <div class="flex items-center gap-3 shrink-0">
-        <span class="${l.ok ? 'text-emerald-400' : 'text-rose-400'} font-bold">${l.status}</span>
+        <span class="${l.ok ? 'text-emerald-400' : 'text-rose-400'} font-bold">${escapeHtml(l.status)}</span>
         <span class="text-brand-muted text-[10px]">${l.duration}ms</span>
-        <span class="text-brand-muted text-[10px] hidden sm:inline">${l.time}</span>
+        <span class="text-brand-muted text-[10px] hidden sm:inline">${escapeHtml(l.time)}</span>
       </div>
     </div>
   `).join('');
@@ -230,7 +241,7 @@ async function loadDiscoverMovies(shuffle = false) {
     } catch (fallbackErr) {
       gridEl.innerHTML = `
         <div class="col-span-full py-12 text-center text-rose-400 bg-rose-950/20 border border-rose-900/40 rounded-xl p-6">
-          <p class="font-bold mb-1">Gagal terhubung ke backend (${state.apiBaseUrl})</p>
+          <p class="font-bold mb-1">Gagal terhubung ke backend (${escapeHtml(state.apiBaseUrl)})</p>
           <p class="text-xs text-brand-muted">Pastikan server backend Anda menyala dan mengizinkan CORS.</p>
         </div>
       `;
@@ -294,11 +305,11 @@ function renderMovieGrid() {
       <div class="poster-hover group relative bg-brand-card rounded-xl overflow-hidden border border-brand-border/70 hover:border-brand-green/60 transition-all duration-300 hover:shadow-xl hover:shadow-brand-green/10 flex flex-col">
         <!-- Poster & Hover Overlay -->
         <div class="relative aspect-[2/3] w-full overflow-hidden bg-brand-dark cursor-pointer" onclick="openMovieDetail(${movie.id})">
-          <img src="${poster}" alt="${movie.title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/300x450/1e242b/8996a6?text=Poster'" />
+          <img src="${safeImageUrl(poster)}" alt="${escapeHtml(movie.title)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/300x450/1e242b/8996a6?text=Poster'" />
           
           <!-- Rating badge -->
           <div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur text-xs font-bold text-amber-400 flex items-center gap-1 border border-white/10">
-            ★ <span>${movie.rating || 'N/A'}</span>
+            ★ <span>${escapeHtml(movie.rating || 'N/A')}</span>
           </div>
 
           <!-- Quick Action Buttons Overlay -->
@@ -319,8 +330,8 @@ function renderMovieGrid() {
         <!-- Info Bottom -->
         <div class="p-3 flex-1 flex flex-col justify-between">
           <div>
-            <h3 class="font-bold text-sm text-white line-clamp-1 group-hover:text-brand-green transition cursor-pointer" onclick="openMovieDetail(${movie.id})">${movie.title}</h3>
-            <p class="text-xs text-brand-muted mt-0.5">${movie.year} • ${movie.director || 'Unknown'}</p>
+            <h3 class="font-bold text-sm text-white line-clamp-1 group-hover:text-brand-green transition cursor-pointer" onclick="openMovieDetail(${movie.id})">${escapeHtml(movie.title)}</h3>
+            <p class="text-xs text-brand-muted mt-0.5">${escapeHtml(movie.year)} • ${escapeHtml(movie.director || 'Unknown')}</p>
           </div>
         </div>
       </div>
@@ -364,37 +375,37 @@ async function openMovieDetail(movieId) {
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Poster -->
       <div class="w-full sm:w-52 shrink-0">
-        <img src="${poster}" alt="${movie.title}" class="w-full rounded-xl shadow-xl border border-brand-border" />
+        <img src="${safeImageUrl(poster)}" alt="${escapeHtml(movie.title)}" class="w-full rounded-xl shadow-xl border border-brand-border" />
       </div>
 
       <!-- Info -->
       <div class="flex-1 space-y-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-brand-green/20 text-brand-green border border-brand-green/30">${movie.year}</span>
-            <span class="text-xs text-brand-muted">${movie.duration || ''}</span>
-            <span class="text-xs font-bold text-amber-400 flex items-center gap-0.5 ml-auto">★ ${movie.rating || 'N/A'}</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded bg-brand-green/20 text-brand-green border border-brand-green/30">${escapeHtml(movie.year)}</span>
+            <span class="text-xs text-brand-muted">${escapeHtml(movie.duration || '')}</span>
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-0.5 ml-auto">★ ${escapeHtml(movie.rating || 'N/A')}</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">${movie.title}</h2>
-          <p class="text-sm text-brand-muted mt-1">Directed by <span class="text-white font-medium">${movie.director || 'Unknown'}</span></p>
+          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">${escapeHtml(movie.title)}</h2>
+          <p class="text-sm text-brand-muted mt-1">Directed by <span class="text-white font-medium">${escapeHtml(movie.director || 'Unknown')}</span></p>
         </div>
 
         <!-- Genres Chips -->
         <div class="flex flex-wrap gap-1.5">
-          ${genres.map(g => `<span class="px-2 py-0.5 rounded-full bg-brand-dark border border-brand-border text-[11px] text-brand-muted">${g.trim()}</span>`).join('')}
+          ${genres.map(g => `<span class="px-2 py-0.5 rounded-full bg-brand-dark border border-brand-border text-[11px] text-brand-muted">${escapeHtml(g.trim())}</span>`).join('')}
         </div>
 
         <!-- Synopsis -->
         <div>
           <h4 class="text-xs font-bold text-brand-muted uppercase tracking-wider mb-1">Synopsis</h4>
-          <p class="text-sm text-gray-300 leading-relaxed">${movie.synopsis || 'No synopsis available.'}</p>
+          <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(movie.synopsis || 'No synopsis available.')}</p>
         </div>
 
         <!-- Cast -->
         ${cast.length ? `
           <div>
             <h4 class="text-xs font-bold text-brand-muted uppercase tracking-wider mb-1">Cast</h4>
-            <p class="text-xs text-brand-muted">${cast.map(c => c.trim()).join(' • ')}</p>
+            <p class="text-xs text-brand-muted">${escapeHtml(cast.map(c => c.trim()).join(' • '))}</p>
           </div>
         ` : ''}
 
@@ -520,12 +531,12 @@ function renderWatchlistGrid() {
     return `
       <div class="bg-brand-card rounded-xl overflow-hidden border border-brand-border flex flex-col group">
         <div class="relative aspect-[2/3] overflow-hidden bg-brand-dark cursor-pointer" onclick="openMovieDetail(${movie.id})">
-          <img src="${poster}" alt="${movie.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <img src="${safeImageUrl(poster)}" alt="${escapeHtml(movie.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         </div>
         <div class="p-3 flex-1 flex flex-col justify-between">
           <div>
-            <h4 class="font-bold text-sm text-white truncate cursor-pointer hover:text-brand-green" onclick="openMovieDetail(${movie.id})">${movie.title}</h4>
-            <p class="text-xs text-brand-muted mt-0.5">${movie.year || ''}</p>
+            <h4 class="font-bold text-sm text-white truncate cursor-pointer hover:text-brand-green" onclick="openMovieDetail(${movie.id})">${escapeHtml(movie.title)}</h4>
+            <p class="text-xs text-brand-muted mt-0.5">${escapeHtml(movie.year || '')}</p>
           </div>
           <div class="flex items-center gap-2 mt-3 pt-2 border-t border-brand-border">
             <button onclick="toggleWatchlist(${movie.id})" class="text-xs text-rose-400 hover:text-rose-300 py-1 flex items-center gap-1">
@@ -572,7 +583,7 @@ function openWatchedModal(movieId) {
     <div class="space-y-4">
       <div class="border-b border-brand-border pb-3">
         <span class="text-xs font-bold text-brand-green uppercase tracking-wider">Log Review & Thoughts</span>
-        <h2 class="text-2xl font-bold text-white mt-1">${movie.title}</h2>
+        <h2 class="text-2xl font-bold text-white mt-1">${escapeHtml(movie.title)}</h2>
       </div>
 
       <form id="watched-form" onsubmit="handleWatchedSubmit(event, ${movie.id})" class="space-y-4">
@@ -676,11 +687,11 @@ function renderWatchedList() {
 
     return `
       <div class="bg-brand-surface p-4 sm:p-5 rounded-2xl border border-brand-border flex gap-4 sm:gap-6 items-start">
-        <img src="${poster}" alt="${movie.title}" class="w-16 sm:w-20 aspect-[2/3] object-cover rounded-lg shrink-0 border border-brand-border shadow-md" />
+        <img src="${safeImageUrl(poster)}" alt="${escapeHtml(movie.title)}" class="w-16 sm:w-20 aspect-[2/3] object-cover rounded-lg shrink-0 border border-brand-border shadow-md" />
         <div class="flex-1 space-y-2">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h4 class="font-bold text-base text-white hover:text-brand-green cursor-pointer" onclick="openMovieDetail(${movieId})">
-              ${movie.title} <span class="text-xs text-brand-muted font-normal">(${movie.year || ''})</span>
+              ${escapeHtml(movie.title)} <span class="text-xs text-brand-muted font-normal">(${escapeHtml(movie.year || '')})</span>
             </h4>
             <div class="flex items-center gap-2">
               <span class="text-amber-400 font-bold text-sm tracking-wider">${ratingStars}</span>
@@ -688,7 +699,7 @@ function renderWatchedList() {
             </div>
           </div>
           <p class="text-sm text-gray-300 leading-relaxed bg-brand-dark/40 p-3 rounded-xl border border-brand-border/40 font-normal">
-            "${item.review || item.opinion || 'Tidak ada catatan ulasan.'}"
+            "${escapeHtml(item.review || item.opinion || 'Tidak ada catatan ulasan.')}"
           </p>
         </div>
       </div>
@@ -767,16 +778,16 @@ function renderAiRecommendation(data) {
         </div>
 
         <div class="flex flex-col sm:flex-row gap-6 items-start">
-          <img src="${poster}" alt="${matchedMovie.title}" class="w-36 sm:w-44 aspect-[2/3] object-cover rounded-xl border border-brand-border shadow-xl shrink-0" />
+          <img src="${safeImageUrl(poster)}" alt="${escapeHtml(matchedMovie.title)}" class="w-36 sm:w-44 aspect-[2/3] object-cover rounded-xl border border-brand-border shadow-xl shrink-0" />
           
           <div class="flex-1 space-y-3">
             <div>
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-amber-400">★ ${matchedMovie.rating || 'N/A'}</span>
-                <span class="text-xs text-brand-muted">• ${matchedMovie.year || ''}</span>
+                <span class="text-xs font-bold text-amber-400">★ ${escapeHtml(matchedMovie.rating || 'N/A')}</span>
+                <span class="text-xs text-brand-muted">• ${escapeHtml(matchedMovie.year || '')}</span>
               </div>
-              <h3 class="text-2xl font-black text-white hover:text-brand-green cursor-pointer" onclick="openMovieDetail(${matchedMovie.id})">${matchedMovie.title}</h3>
-              <p class="text-xs text-brand-muted">Directed by ${matchedMovie.director || 'Unknown'}</p>
+              <h3 class="text-2xl font-black text-white hover:text-brand-green cursor-pointer" onclick="openMovieDetail(${matchedMovie.id})">${escapeHtml(matchedMovie.title)}</h3>
+              <p class="text-xs text-brand-muted">Directed by ${escapeHtml(matchedMovie.director || 'Unknown')}</p>
             </div>
 
             <!-- Gemini Reasoning Card -->
@@ -785,7 +796,7 @@ function renderAiRecommendation(data) {
                 <i data-lucide="bot" class="w-3.5 h-3.5"></i> Alasan Rekomendasi (Gemini Analysis):
               </span>
               <p class="text-xs text-gray-200 leading-relaxed italic">
-                "${reasoning}"
+                "${escapeHtml(reasoning)}"
               </p>
             </div>
 
@@ -817,9 +828,9 @@ function renderAuthUI() {
     container.innerHTML = `
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 rounded-full bg-brand-border flex items-center justify-center font-bold text-xs text-white uppercase border border-brand-border">
-          ${(state.user.username || state.user.email || 'U')[0]}
+          ${escapeHtml((state.user.username || state.user.email || 'U')[0])}
         </div>
-        <span class="text-xs font-semibold text-white hidden sm:inline">${state.user.username || state.user.email}</span>
+        <span class="text-xs font-semibold text-white hidden sm:inline">${escapeHtml(state.user.username || state.user.email)}</span>
         <button onclick="logout()" title="Logout" class="p-1.5 rounded-lg text-brand-muted hover:text-rose-400 hover:bg-rose-950/20 transition">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
