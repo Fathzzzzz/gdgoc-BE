@@ -29,7 +29,7 @@ Jangan menjalankan server statis dari dalam frontend/ jika ingin fallback datase
 ## Konfigurasi
 Lihat .env.example. DATABASE_URL mengarah ke PostgreSQL host port 55432. JWT memakai algoritma yang dikonfigurasi, expiry default 60 menit. CORS hanya mengizinkan origin frontend yang dikonfigurasi. Rahasia tidak masuk Git.
 
-Untuk Gemini, isi GEMINI_API_KEY dan GEMINI_MODEL pada .env lalu restart backend. Nama model contoh perlu disesuaikan dengan model yang tersedia pada akun Google; tidak ada klaim kuota atau model selalu tersedia. Timeout default 20 detik. Tanpa kunci, endpoint mengembalikan 503 dengan pesan yang jelas; tidak ada rekomendasi palsu.
+Isi `GEMINI_API_KEY` dan `GEMINI_MODEL` pada `.env` lalu mulai ulang backend. Gunakan nama model yang tersedia pada akun Google. Untuk Gemini 3, permintaan rekomendasi memakai thinking level `LOW` dan mengikuti format permintaan tanpa parameter sampling yang dihapus. Timeout respons default 45 detik. Backend mencoba menyambung kembali hingga dua kali jika koneksi awal gagal. Tanpa kunci, endpoint mengembalikan 503.
 
 ## API
 | Method | Path | Akses | Input |
