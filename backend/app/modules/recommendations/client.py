@@ -7,25 +7,25 @@ from app.core.config import get_settings
 from app.core.errors import fail
 
 
-class OpenAICompatibleClient:
+class AIRecommendationClient:
     def generate(self, catalog, prompt):
         settings = get_settings()
-        api_key = settings.openai_api_key.get_secret_value().strip()
-        model = settings.openai_model.strip()
-        base_url = settings.openai_base_url.strip()
+        api_key = settings.ai_api_key.get_secret_value().strip()
+        model = settings.ai_model.strip()
+        base_url = settings.ai_base_url.strip()
         if not (api_key and model and base_url):
             fail(
                 503,
-                "Isi OPENAI_BASE_URL, OPENAI_API_KEY, dan OPENAI_MODEL pada backend.",
+                "Isi AI_BASE_URL, AI_API_KEY, dan AI_MODEL pada backend.",
                 "RECOMMENDATION_NOT_CONFIGURED",
             )
 
         try:
             url = httpx.URL(base_url)
         except httpx.InvalidURL:
-            fail(503, "OPENAI_BASE_URL tidak valid.", "RECOMMENDATION_INVALID_ENDPOINT")
+            fail(503, "AI_BASE_URL tidak valid.", "RECOMMENDATION_INVALID_ENDPOINT")
         if url.scheme not in {"http", "https"} or not url.host or url.userinfo or url.fragment:
-            fail(503, "OPENAI_BASE_URL tidak valid.", "RECOMMENDATION_INVALID_ENDPOINT")
+            fail(503, "AI_BASE_URL tidak valid.", "RECOMMENDATION_INVALID_ENDPOINT")
         path = url.path.rstrip("/")
         if not path.endswith("/chat/completions"):
             path += "/chat/completions"
@@ -48,8 +48,8 @@ class OpenAICompatibleClient:
         }
         headers = {"Authorization": f"Bearer {api_key}"}
         timeout = httpx.Timeout(
-            settings.openai_timeout_seconds,
-            connect=min(8, settings.openai_timeout_seconds),
+            settings.ai_timeout_seconds,
+            connect=min(8, settings.ai_timeout_seconds),
         )
         try:
             with httpx.Client(timeout=timeout, follow_redirects=False) as client:
@@ -68,7 +68,7 @@ class OpenAICompatibleClient:
             fail(503, "Provider rekomendasi tidak dapat dihubungi.", "RECOMMENDATION_UNAVAILABLE")
 
         if response.status_code in {401, 403}:
-            fail(503, "Provider menolak akses. Periksa OPENAI_API_KEY.", "RECOMMENDATION_PROVIDER_AUTH")
+            fail(503, "Provider menolak akses. Periksa AI_API_KEY.", "RECOMMENDATION_PROVIDER_AUTH")
         if response.status_code == 404:
             fail(503, "Endpoint atau model tidak ditemukan. Periksa konfigurasi provider.", "RECOMMENDATION_PROVIDER_CONFIG")
         if response.status_code in {429, 503}:
@@ -88,4 +88,4 @@ class OpenAICompatibleClient:
 
 
 def get_recommendation_client():
-    return OpenAICompatibleClient()
+    return AIRecommendationClient()

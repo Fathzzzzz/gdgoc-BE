@@ -89,8 +89,8 @@ def test_recommendation_grounding(client, output, status):
     assert client.post("/api/movies/recommend", json={"prompt":"misteri","query":"misteri","description":"misteri"}).status_code == status
 
 
-def test_missing_openai_key(client, monkeypatch):
-    monkeypatch.setattr(get_settings(), "openai_api_key", SecretStr(""))
+def test_missing_ai_key(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "ai_api_key", SecretStr(""))
     assert client.post("/api/movies/recommend", json={"prompt":"misteri"}).status_code == 503
     assert client.post("/api/movies/recommend", json={"prompt":" "}).status_code == 400
 

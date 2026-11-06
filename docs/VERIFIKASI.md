@@ -17,16 +17,16 @@ Tanggal: 5 November 2026. Lingkungan: macOS ARM64, Python 3.14.6, PostgreSQL 17 
 | Node renderer test | Teks markup ulasan/alasan AI di-escape, javascript: URL ditolak |
 | Browser companion | Register, login, katalog/detail, tambah/hapus watchlist dan review berhasil |
 | Browser teks markup | Ulasan menampilkan <b> sebagai teks, bukan format HTML |
-| Browser tanpa Gemini key | Pesan 503 terbaca, tidak ada rekomendasi palsu |
+| Browser tanpa API key | Pesan 503 terbaca, tidak ada rekomendasi palsu |
 | Request bersamaan | Dua penambahan watchlist: 201 dan 409, satu baris tersimpan |
 
 ## Cakupan tests
-Katalog/detail/filter, bentuk array genre/cast, normalisasi email, email duplikat, kredensial salah, token hilang/rusak/expired, isolasi dua akun, kepemilikan dari token, film tidak ada, rating salah/boolean/pecahan, ulasan kosong, tontonan ulang, CORS allowed/denied, keluaran Gemini valid/ID salah/tipe salah/alasan kosong, timeout/network/quota/JSON rusak dan response hilang. Test HTTP provider memeriksa struktur request; ini bukan verifikasi kompatibilitas provider nyata.
+Katalog/detail/filter, bentuk array genre/cast, normalisasi email, email duplikat, kredensial salah, token hilang/rusak/expired, isolasi dua akun, kepemilikan dari token, film tidak ada, rating salah/boolean/pecahan, ulasan kosong, tontonan ulang, CORS allowed/denied, keluaran rekomendasi valid/ID salah/tipe salah/alasan kosong, timeout/network/quota/JSON rusak dan response hilang. Test HTTP provider memeriksa struktur request; ini bukan verifikasi kompatibilitas provider nyata.
 
 ![Bukti companion dan API Inspector](frontend-verified.jpg)
 
 ## Batas verifikasi
-- GEMINI_API_KEY belum tersedia; panggilan Gemini nyata belum diuji. Isi key dan model yang tersedia, restart backend, lalu lakukan smoke test POST /api/movies/recommend.
+- Pengujian provider OpenAI-compatible menggunakan simulasi. Untuk menguji provider sendiri, isi `AI_BASE_URL`, `AI_API_KEY`, dan `AI_MODEL`, mulai ulang backend, lalu coba `POST /api/movies/recommend`.
 - Browser diperiksa pada browser bawaan aplikasi, bukan audit seluruh perangkat/browser atau aksesibilitas lengkap.
 - Tidak dilakukan load test, pentest, deployment publik atau rekaman video.
 - Snapshot diambil setelah watchlist demo dihapus; riwayat demo tetap ada. Akun ini hanya data demonstrasi lokal, bukan akun produksi.

@@ -33,21 +33,21 @@ Model dikumpulkan dalam database/models.py agar relasi antarfitur mudah dilihat 
 
 Payload tambahan companion diabaikan; movieId/movie_id dan review/opinion diterima. Respons tidak memuat hash password. Password tidak dipangkas sebelum hashing. Username boleh sama, email dinormalisasi dan unik. Logout mengikuti starter: menghapus sesi browser, bukan mencabut JWT.
 
-## Tahap 4 — Gemini
-1. Membuat schema rekomendasi, client HTTP Gemini, service grounding dan router POST /api/movies/recommend.
-2. Memisahkan systemInstruction (aturan dan katalog) dari pesan preferensi pengguna.
+## Tahap 4 — Rekomendasi AI
+1. Membuat schema rekomendasi, klien HTTP untuk provider rekomendasi, service grounding dan router POST /api/movies/recommend.
+2. Memisahkan system prompt (aturan dan katalog) dari pesan preferensi pengguna.
 3. Meminta JSON terstruktur lalu memvalidasi tipe ID, alasan, dan keanggotaan katalog pada backend.
 4. Memetakan kegagalan provider menjadi 502/503/504 tanpa mengirim body provider atau API key.
 5. API key dibiarkan kosong karena pengguna belum memberikan kredensial. Model default dapat diubah melalui .env; keberadaan konfigurasi bukan bukti integrasi nyata berhasil.
 
-Rujukan implementasi: https://ai.google.dev/api/generate-content dan https://ai.google.dev/gemini-api/docs/structured-output (diperiksa 5 November 2026). Gemini tidak diganti film acak saat gagal.
+Integrasi saat ini menggunakan Chat Completions. Konfigurasi ada pada `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, dan `AI_TIMEOUT_SECONDS`.
 
 ## Tahap 5 — Integrasi dan verifikasi
 1. Menambahkan escapeHtml dan pembatasan URL poster pada companion, serta memperbaiki petunjuk server statis.
 2. Menemukan timer closeMovieDetailModal yang dapat menutup form review yang baru dibuka; transisi kini mengganti isi modal yang sama tanpa menjadwalkan penutupan.
 3. Unduhan psycopg-binary sempat timeout dan dilanjutkan pip; instalasi akhirnya berhasil. pip check tidak menemukan dependency rusak.
 4. Menjalankan alembic upgrade head, seed dua kali, dan alembic check: tidak ada perbedaan skema/model.
-5. Menjalankan 27 tes PostgreSQL: seluruhnya lulus (1,24 detik pada run awal). Tes termasuk dua request watchlist bersamaan, isolasi dua akun, serta mock kegagalan dan keluaran Gemini.
+5. Menjalankan 27 tes PostgreSQL: seluruhnya lulus (1,24 detik pada run awal). Tes termasuk dua request watchlist bersamaan, isolasi dua akun, serta mock kegagalan dan keluaran provider.
 6. Memeriksa sintaks JS dan menjalankan tes renderer frontend: lulus.
 7. Menguji di browser: registrasi demo-browser@example.com, login, detail Inception, tambah watchlist, formulir review, simpan, riwayat, dan pesan AI tanpa key. Markup <b> pada ulasan tampil sebagai teks.
 8. Menjalankan seed saat data demo tersedia: jumlah [film,user,watchlist,review] tetap [20,1,1,1]. Restart container PostgreSQL, periksa jumlah yang sama dan reload browser: data masih tersedia.
@@ -58,7 +58,7 @@ Rujukan implementasi: https://ai.google.dev/api/generate-content dan https://ai.
 - 9a82246: konfigurasi lokal, Docker dan dependency.
 - 0143ec4: model database, Alembic dan seeding.
 - 311af26: JWT dan fitur inti.
-- af45d42: integrasi Gemini dan grounding.
+- af45d42: integrasi rekomendasi awal dan validasi katalog.
 - 2a2eaa1: rendering frontend aman dan petunjuk fallback.
 - Commit final menyimpan pengujian, perbaikan hasil pemeriksaan, dependency terkunci dan laporan. Gunakan git log untuk hash terakhir; hash commit tidak dapat dimuat dalam isi commit itu sendiri.
 

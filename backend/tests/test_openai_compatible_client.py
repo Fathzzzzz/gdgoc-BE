@@ -4,21 +4,21 @@ from fastapi import HTTPException
 from pydantic import SecretStr
 
 from app.core.config import get_settings
-from app.modules.recommendations.client import OpenAICompatibleClient
+from app.modules.recommendations.client import AIRecommendationClient
 
 
 @pytest.fixture
 def provider_settings(monkeypatch):
     settings = get_settings()
-    monkeypatch.setattr(settings, "openai_base_url", "https://provider.example/api/v1/")
-    monkeypatch.setattr(settings, "openai_api_key", SecretStr("test-provider-key"))
-    monkeypatch.setattr(settings, "openai_model", "provider/movie-model")
+    monkeypatch.setattr(settings, "ai_base_url", "https://provider.example/api/v1/")
+    monkeypatch.setattr(settings, "ai_api_key", SecretStr("test-provider-key"))
+    monkeypatch.setattr(settings, "ai_model", "provider/movie-model")
     return settings
 
 
 @pytest.mark.parametrize("suffix", ["", "chat/completions"])
 def test_openai_compatible_endpoint(client, provider_settings, monkeypatch, suffix):
-    monkeypatch.setattr(provider_settings, "openai_base_url", provider_settings.openai_base_url + suffix)
+    monkeypatch.setattr(provider_settings, "ai_base_url", provider_settings.ai_base_url + suffix)
     original_post = httpx.Client.post
 
     def post(self, url, **kwargs):
@@ -55,7 +55,7 @@ def test_openai_error_hides_provider_body(provider_settings, monkeypatch, upstre
 
     monkeypatch.setattr(httpx.Client, "post", post)
     with pytest.raises(HTTPException) as exc:
-        OpenAICompatibleClient().generate([], "misteri")
+        AIRecommendationClient().generate([], "misteri")
     assert exc.value.status_code == 503
     assert exc.value.detail["code"] == code
     assert "private provider diagnostics" not in str(exc.value.detail)
@@ -79,10 +79,10 @@ def test_openai_retry_only_before_request(provider_settings, monkeypatch, failur
 
     monkeypatch.setattr(httpx.Client, "post", post)
     if status == 200:
-        assert OpenAICompatibleClient().generate([], "misteri")["movie_id"] == 1
+        assert AIRecommendationClient().generate([], "misteri")["movie_id"] == 1
     else:
         with pytest.raises(HTTPException) as exc:
-            OpenAICompatibleClient().generate([], "misteri")
+            AIRecommendationClient().generate([], "misteri")
         assert exc.value.status_code == status
     assert calls == expected_calls
 
@@ -93,6 +93,6 @@ def test_openai_missing_text(provider_settings, monkeypatch):
 
     monkeypatch.setattr(httpx.Client, "post", post)
     with pytest.raises(HTTPException) as exc:
-        OpenAICompatibleClient().generate([], "misteri")
+        AIRecommendationClient().generate([], "misteri")
     assert exc.value.status_code == 502
     assert exc.value.detail["code"] == "RECOMMENDATION_INVALID_OUTPUT"

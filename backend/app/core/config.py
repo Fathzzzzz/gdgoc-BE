@@ -11,10 +11,10 @@ class Settings(BaseSettings):
     jwt_secret_key: str = Field(min_length=32)
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = Field(default=60, gt=0)
-    openai_base_url: str = ""
-    openai_api_key: SecretStr = SecretStr("")
-    openai_model: str = ""
-    openai_timeout_seconds: float = Field(default=45, gt=0)
+    ai_base_url: str = ""
+    ai_api_key: SecretStr = SecretStr("")
+    ai_model: str = ""
+    ai_timeout_seconds: float = Field(default=45, gt=0)
     cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
 @lru_cache

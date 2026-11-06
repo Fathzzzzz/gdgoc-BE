@@ -1,6 +1,6 @@
 # Laporan dan tutorial implementasi FilmLog
 
-Tanggal pekerjaan: 5 November 2026. Laporan ini mengikuti pekerjaan yang dilakukan pada starter lokal. Tujuannya menjelaskan file apa yang dibuat dahulu, mengapa dibuat, dan bagaimana memeriksa hasilnya. Ini bukan pengakuan bahwa video submission atau integrasi Gemini nyata sudah selesai.
+Tanggal pekerjaan: 5 November 2026. Laporan ini mengikuti pekerjaan yang dilakukan pada starter lokal. Tujuannya menjelaskan file apa yang dibuat dahulu, mengapa dibuat, dan bagaimana memeriksa hasilnya. Status uji provider dicatat di VERIFIKASI.md.
 
 ## 1. Memahami keadaan awal
 Pertama, saya membaca README, frontend/app.js, frontend/index.html, dataset JSON/SQL, spesifikasi assignment, dan PRD yang diberikan. Backend hanya berisi main.py dan __init__.py yang kosong. Frontend sudah memanggil 10 endpoint tetapi belum mempunyai backend aplikasi.
@@ -17,7 +17,7 @@ Lalu saya membuat .env.example dan .env lokal. Contoh memuat nama variabel; file
 Docker Desktop awalnya belum aktif. Saya membukanya, meminta akses yang diperlukan dan menjalankan docker compose up -d --wait. Dependency Python dipasang ke virtual environment backend/.venv yang sudah tersedia. requirements.txt berisi rentang kompatibilitas; requirements.lock.txt membekukan versi lingkungan yang benar-benar diuji.
 
 ## 3. Menghubungkan aplikasi dengan database
-Saya membuat app/core/config.py terlebih dahulu agar semua bagian memakai satu konfigurasi. Path .env dihitung dari lokasi file, sehingga tidak bergantung pada terminal dibuka di folder mana. Nilai yang dapat diubah meliputi database, JWT, Gemini, timeout dan CORS.
+Saya membuat app/core/config.py terlebih dahulu agar semua bagian memakai satu konfigurasi. Path .env dihitung dari lokasi file, sehingga tidak bergantung pada terminal dibuka di folder mana. Nilai yang dapat diubah meliputi database, JWT, provider AI, timeout dan CORS.
 
 Lalu app/database/session.py mendefinisikan engine SQLAlchemy, Base dan SessionLocal. Sesi dibuka per request dan ditutup setelahnya. pool_pre_ping memeriksa koneksi lama sebelum dipakai kembali.
 
@@ -57,14 +57,11 @@ Payload companion membawa field tambahan movie_id, opinion, query dan descriptio
 ## 8. Menggabungkan aplikasi
 main.py membuat FastAPI, mendaftarkan router dan CORS, serta handler error. Validasi input diubah menjadi 400 dengan message yang terbaca frontend, sementara internal error menghasilkan 500 generik. Logger aplikasi mencatat method/path/status/durasi tanpa body, token atau API key. /health hanya menyatakan proses aktif. /docs dan /openapi.json disediakan otomatis untuk mencoba endpoint.
 
-## 9. Menambahkan rekomendasi Gemini
+## 9. Menambahkan rekomendasi AI
 
-Pembaruan 6 November 2026. Implementasi aktif memakai Chat Completions OpenAI-compatible. Konfigurasi `OPENAI_BASE_URL`, `OPENAI_API_KEY`, dan `OPENAI_MODEL` dijelaskan di README. Langkah berikut mencatat implementasi awal.
-Urutannya schema → client → service → router. Client mengirim request generateContent memakai x-goog-api-key dan timeout. Aturan katalog ada di systemInstruction; preferensi pengguna dikirim sebagai pesan user terpisah. Keluaran diminta JSON berisi movie_id dan reasoning.
+Klien mengirim `POST /chat/completions` ke endpoint dari `AI_BASE_URL`, dengan `AI_API_KEY` sebagai Bearer token dan `AI_MODEL` sebagai ID model. `AI_TIMEOUT_SECONDS` mengatur waktu tunggu. System prompt memuat aturan dan katalog film. Preferensi pengguna dikirim sebagai pesan terpisah. Provider diminta mengembalikan JSON berisi `movie_id` dan `reasoning`.
 
-Service mengambil hanya ID dataset awal yang juga ada dalam database, menyertakan metadata film ke prompt, lalu memvalidasi hasil. ID di luar kandidat, tipe yang salah atau alasan kosong menghasilkan 502. Timeout 504 dan provider tidak tersedia 503. Hasil gagal tidak diganti film acak.
-
-API key tidak tersedia pada saat pembangunan. Karena itu jalur sukses dan kegagalan diuji dengan test double serta HTTP mock. Pengujian nyata masih memerlukan key dan model yang tersedia pada akun pengguna. Cara melanjutkan: isi .env, restart backend, POST prompt, pastikan 200 dan ID termasuk 20 film. Jangan menyamakan lulus mock dengan sukses provider nyata.
+Service mengambil ID dataset awal yang tersedia dalam database dan menolak ID di luar katalog. Respons rusak menghasilkan 502, layanan tidak tersedia menghasilkan 503, dan timeout menghasilkan 504. Tes otomatis memakai simulasi provider. Cara menguji endpoint milikmu ada di README.
 
 ## 10. Menyesuaikan frontend secukupnya
 Tampilan dan fungsi starter dipertahankan. Saya menambahkan escapeHtml untuk data teks yang masuk ke template innerHTML dan safeImageUrl untuk membatasi poster ke HTTP(S). Tujuannya agar ulasan atau alasan AI berisi markup ditampilkan sebagai teks. Pada awalnya server statis dijalankan dari root agar ../data/movies.json dapat diakses. Pemeriksaan akhir menunjukkan cara ini juga berpotensi membuka .env. Saya kemudian membuat scripts/serve_frontend.py dengan allowlist direktori frontend/ dan data/, mengganti server percobaan, dan menguji .env, .git, backend serta traversal menghasilkan 404. Gunakan server khusus pada README, bukan server statis umum dari root.
@@ -72,10 +69,10 @@ Tampilan dan fungsi starter dipertahankan. Saya menambahkan escapeHtml untuk dat
 ## 11. Memverifikasi pekerjaan
 Pengujian otomatis memakai PostgreSQL sungguhan. Fixture membuka transaksi luar dan savepoint sehingga commit di service tetap dapat di-rollback saat test selesai. Data pengguna aplikasi tidak dibersihkan oleh test; sequence dapat meningkat. Provider disimulasikan secara terpisah.
 
-Cakupan meliputi katalog, input, auth guard, dua akun, duplikasi, pencatatan ulang, CORS serta grounding dan kegagalan Gemini. Hasil aktual dan pemeriksaan tambahan dicatat di VERIFIKASI.md. Database juga diperiksa setelah seed ulang dan container dimulai ulang untuk memeriksa persistensi.
+Cakupan meliputi katalog, input, auth guard, dua akun, duplikasi, pencatatan ulang, CORS serta grounding dan kegagalan provider AI. Hasil aktual dan pemeriksaan tambahan dicatat di VERIFIKASI.md. Database juga diperiksa setelah seed ulang dan container dimulai ulang untuk memeriksa persistensi.
 
 ## 12. Commit bertahap dan penggunaan ulang
-Commit dilakukan per tahap yang dapat ditinjau: konfigurasi, database, API inti, Gemini, integrasi frontend, lalu pengujian/laporan. Lihat JURNAL-PEKERJAAN.md dan git log. Commit dilakukan pada saat tahapnya tersedia; pengujian menyeluruh dilakukan sesudah fitur tersambung dan setiap temuan diperbaiki pada tahap validasi.
+Commit dilakukan per tahap yang dapat ditinjau: konfigurasi, database, API inti, rekomendasi AI, integrasi frontend, lalu pengujian/laporan. Lihat JURNAL-PEKERJAAN.md dan git log. Commit dilakukan pada saat tahapnya tersedia; pengujian menyeluruh dilakukan sesudah fitur tersambung dan setiap temuan diperbaiki pada tahap validasi.
 
 Untuk mengulang di komputer lain, ikuti README dari penyalinan .env sampai migrasi, seed dan server. Untuk mempelajari kode, ikuti satu request: router → schema/dependency → service atau repository → database → schema respons. Tidak semua modul memerlukan semua lapisan; query review sederhana tetap berada pada router untuk menghindari lapisan tanpa manfaat.
 

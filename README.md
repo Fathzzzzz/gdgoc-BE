@@ -32,10 +32,10 @@ Lihat .env.example. DATABASE_URL mengarah ke PostgreSQL host port 55432. JWT mem
 Untuk rekomendasi film, isi konfigurasi provider OpenAI-compatible di `.env` pada root proyek.
 
 ```dotenv
-OPENAI_BASE_URL=https://provider.example/v1
-OPENAI_API_KEY=isi-dengan-key-provider
-OPENAI_MODEL=nama-model-di-provider
-OPENAI_TIMEOUT_SECONDS=45
+AI_BASE_URL=https://provider.example/v1
+AI_API_KEY=isi-dengan-key-provider
+AI_MODEL=nama-model-di-provider
+AI_TIMEOUT_SECONDS=45
 ```
 
 Gunakan URL dari provider. FilmLog menambahkan `/chat/completions` ke base URL dan menerima URL yang sudah berakhiran `/chat/completions`. Contoh URL di atas menghasilkan `https://provider.example/v1/chat/completions`. Gunakan ID model persis seperti yang tercantum pada provider, termasuk awalan bila ada.
