@@ -58,6 +58,8 @@ Payload companion membawa field tambahan movie_id, opinion, query dan descriptio
 main.py membuat FastAPI, mendaftarkan router dan CORS, serta handler error. Validasi input diubah menjadi 400 dengan message yang terbaca frontend, sementara internal error menghasilkan 500 generik. Logger aplikasi mencatat method/path/status/durasi tanpa body, token atau API key. /health hanya menyatakan proses aktif. /docs dan /openapi.json disediakan otomatis untuk mencoba endpoint.
 
 ## 9. Menambahkan rekomendasi Gemini
+
+Pembaruan 6 November 2026. Implementasi aktif memakai Chat Completions OpenAI-compatible. Konfigurasi `OPENAI_BASE_URL`, `OPENAI_API_KEY`, dan `OPENAI_MODEL` dijelaskan di README. Langkah berikut mencatat implementasi awal.
 Urutannya schema → client → service → router. Client mengirim request generateContent memakai x-goog-api-key dan timeout. Aturan katalog ada di systemInstruction; preferensi pengguna dikirim sebagai pesan user terpisah. Keluaran diminta JSON berisi movie_id dan reasoning.
 
 Service mengambil hanya ID dataset awal yang juga ada dalam database, menyertakan metadata film ke prompt, lalu memvalidasi hasil. ID di luar kandidat, tipe yang salah atau alasan kosong menghasilkan 502. Timeout 504 dan provider tidak tersedia 503. Hasil gagal tidak diganti film acak.

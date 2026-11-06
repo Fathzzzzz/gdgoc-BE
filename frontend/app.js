@@ -708,7 +708,7 @@ function renderWatchedList() {
 }
 
 // ==========================================
-// 9. AI RECOMMENDATION (GEMINI)
+// 9. AI RECOMMENDATION
 // ==========================================
 function setAiPrompt(text) {
   document.getElementById('ai-prompt-input').value = text;
@@ -738,7 +738,7 @@ async function submitAiRecommendation() {
     const resultData = response.data || response;
     renderAiRecommendation(resultData);
     resultContainer.classList.remove('hidden');
-    showToast('Gemini berhasil menemukan film yang cocok! ✨', 'success');
+    showToast('Rekomendasi film siap! ✨', 'success');
   } catch (err) {
     showToast(`AI Recommendation Error: ${err.message}`, 'error');
   } finally {
@@ -790,10 +790,10 @@ function renderAiRecommendation(data) {
               <p class="text-xs text-brand-muted">Directed by ${escapeHtml(matchedMovie.director || 'Unknown')}</p>
             </div>
 
-            <!-- Gemini Reasoning Card -->
+            <!-- Recommendation Reasoning Card -->
             <div class="bg-brand-dark/70 border border-brand-border/60 rounded-xl p-4 space-y-1.5">
               <span class="text-xs font-bold text-brand-green flex items-center gap-1.5">
-                <i data-lucide="bot" class="w-3.5 h-3.5"></i> Alasan Rekomendasi (Gemini Analysis):
+                <i data-lucide="bot" class="w-3.5 h-3.5"></i> Alasan Rekomendasi
               </span>
               <p class="text-xs text-gray-200 leading-relaxed italic">
                 "${escapeHtml(reasoning)}"

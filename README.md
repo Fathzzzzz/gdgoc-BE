@@ -29,7 +29,18 @@ Jangan menjalankan server statis dari dalam frontend/ jika ingin fallback datase
 ## Konfigurasi
 Lihat .env.example. DATABASE_URL mengarah ke PostgreSQL host port 55432. JWT memakai algoritma yang dikonfigurasi, expiry default 60 menit. CORS hanya mengizinkan origin frontend yang dikonfigurasi. Rahasia tidak masuk Git.
 
-Isi `GEMINI_API_KEY` dan `GEMINI_MODEL` pada `.env` lalu mulai ulang backend. Gunakan nama model yang tersedia pada akun Google. Untuk Gemini 3, permintaan rekomendasi memakai thinking level `LOW` dan mengikuti format permintaan tanpa parameter sampling yang dihapus. Timeout respons default 45 detik. Backend mencoba menyambung kembali hingga dua kali jika koneksi awal gagal. Tanpa kunci, endpoint mengembalikan 503.
+Untuk rekomendasi film, isi konfigurasi provider OpenAI-compatible di `.env` pada root proyek.
+
+```dotenv
+OPENAI_BASE_URL=https://provider.example/v1
+OPENAI_API_KEY=isi-dengan-key-provider
+OPENAI_MODEL=nama-model-di-provider
+OPENAI_TIMEOUT_SECONDS=45
+```
+
+Gunakan URL dari provider. FilmLog menambahkan `/chat/completions` ke base URL dan menerima URL yang sudah berakhiran `/chat/completions`. Contoh URL di atas menghasilkan `https://provider.example/v1/chat/completions`. Gunakan ID model persis seperti yang tercantum pada provider, termasuk awalan bila ada.
+
+Backend mengirim key melalui header `Authorization: Bearer ...`. Endpoint provider perlu menerima Chat Completions non-streaming dan mengembalikan teks pada `choices[0].message.content`. System prompt meminta JSON berisi `movie_id` dan `reasoning`. Backend memvalidasi ID film terhadap katalog sebelum mengirim hasil ke frontend. Setelah mengubah `.env`, mulai ulang backend.
 
 ## API
 | Method | Path | Akses | Input |
@@ -47,7 +58,7 @@ Isi `GEMINI_API_KEY` dan `GEMINI_MODEL` pada `.env` lalu mulai ulang backend. Gu
 
 JWT dikirim sebagai `Authorization: Bearer <token>`. Login menghasilkan `{token,user}`. Registrasi menghasilkan user tanpa password/hash. Movie mengandung array genres dan cast. Watchlist POST menghasilkan `{data:{movie_id,movie,created_at}}`; daftar menghasilkan array. Review mengandung movie_id, rating, review, created_at dan movie. Rekomendasi menghasilkan `{movie_id,reasoning}`.
 
-Status: register/penambahan 201, pembacaan/login/rekomendasi 200, hapus 204 tanpa body. Error berbentuk `{message,code}`: input 400, auth 401, tidak ditemukan 404, konflik 409, Gemini tidak valid 502, tidak tersedia 503, timeout 504. Status 403 disediakan sebagai konsep izin, tidak dipaksakan pada rute MVP yang mengakses data pemilik token.
+Status: register/penambahan 201, pembacaan/login/rekomendasi 200, hapus 204 tanpa body. Error berbentuk `{message,code}`: input 400, auth 401, tidak ditemukan 404, konflik 409, respons rekomendasi tidak valid 502, tidak tersedia 503, timeout 504. Status 403 disediakan sebagai konsep izin, tidak dipaksakan pada rute MVP yang mengakses data pemilik token.
 
 Batas: username 3–50 setelah trim; password 8–128 tanpa trim; review 1–2000 setelah trim; prompt 1–1000; rating integer 1–5. Email dinormalisasi ke huruf kecil dan unik. Username tidak wajib unik. Riwayat boleh mencatat film sama berulang; menonton tidak otomatis menghapus watchlist. Logout menghapus sesi browser; JWT berlaku sampai expiry.
 
@@ -64,7 +75,7 @@ Gunakan tombol Authorize pada /docs untuk endpoint pribadi.
 cd backend
 .venv/bin/pytest -q
 ```
-Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama dengan transaksi luar dan savepoint yang di-rollback, sehingga data aplikasi tidak dibersihkan; sequence ID dapat meningkat. Jangan menjalankan terhadap database produksi. Test provider memakai test double, bukan panggilan Gemini berbayar. Hasil dan keterbatasan: docs/VERIFIKASI.md.
+Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama dengan transaksi luar dan savepoint yang di-rollback, sehingga data aplikasi tidak dibersihkan; sequence ID dapat meningkat. Jangan menjalankan terhadap database produksi. Tes provider memakai simulasi Chat Completions. Hasil dan keterbatasan: docs/VERIFIKASI.md.
 
 ## Struktur dan laporan
 - backend/app/core: konfigurasi, keamanan, error.

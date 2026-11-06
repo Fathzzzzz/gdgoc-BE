@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta, timezone
 import jwt
 import pytest
+from pydantic import SecretStr
 from sqlalchemy import select
 from app.database.session import SessionLocal
 from app.database.models import Movie
 from app.core.config import get_settings
 from app.main import app
-from app.modules.recommendations.client import get_gemini_client
+from app.modules.recommendations.client import get_recommendation_client
 
 
 def test_catalog(client):
@@ -79,17 +80,17 @@ def test_cors(client):
     assert denied.status_code == 400
 
 @pytest.mark.parametrize("output,status", [({"movie_id":1,"reasoning":"Cocok"},200),({"movie_id":999,"reasoning":"Cocok"},502),({"movie_id":True,"reasoning":"Cocok"},502),({"movie_id":1,"reasoning":"  "},502),({"movie_id":"1","reasoning":"Cocok"},502),({},502)])
-def test_gemini_grounding(client, output, status):
-    class FakeGemini:
+def test_recommendation_grounding(client, output, status):
+    class FakeProvider:
         def generate(self, catalog, prompt):
             assert len(catalog) == 20
             return output
-    app.dependency_overrides[get_gemini_client] = FakeGemini
+    app.dependency_overrides[get_recommendation_client] = FakeProvider
     assert client.post("/api/movies/recommend", json={"prompt":"misteri","query":"misteri","description":"misteri"}).status_code == status
 
 
-def test_missing_gemini_key(client, monkeypatch):
-    monkeypatch.setattr(get_settings(), "gemini_api_key", "")
+def test_missing_openai_key(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "openai_api_key", SecretStr(""))
     assert client.post("/api/movies/recommend", json={"prompt":"misteri"}).status_code == 503
     assert client.post("/api/movies/recommend", json={"prompt":" "}).status_code == 400
 

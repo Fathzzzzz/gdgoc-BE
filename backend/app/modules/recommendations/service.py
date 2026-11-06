@@ -16,7 +16,7 @@ def recommend(db, client, prompt):
     try:
         output = RecommendOutput.model_validate(result)
     except ValidationError:
-        fail(502, "Respons Gemini tidak valid.", "GEMINI_INVALID_OUTPUT")
+        fail(502, "Respons provider rekomendasi tidak valid.", "RECOMMENDATION_INVALID_OUTPUT")
     if output.movie_id not in {m.id for m in movies}:
-        fail(502, "Gemini memilih film di luar katalog awal.", "GEMINI_INVALID_OUTPUT")
+        fail(502, "Provider memilih film di luar katalog awal.", "RECOMMENDATION_INVALID_OUTPUT")
     return output
