@@ -4,6 +4,7 @@ from app.database.models import Review
 from app.dependencies import DB, CurrentUser
 from app.modules.movies.repository import get_movie
 from .schemas import ReviewInput, ReviewOutput
+
 router = APIRouter(prefix="/watched", tags=["Watched & Reviews"])
 
 @router.get("", response_model=list[ReviewOutput])

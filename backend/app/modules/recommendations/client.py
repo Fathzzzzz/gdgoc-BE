@@ -16,7 +16,7 @@ class AIRecommendationClient:
         if not (api_key and model and base_url):
             fail(
                 503,
-                "Isi AI_BASE_URL, AI_API_KEY, dan AI_MODEL pada backend.",
+                "Konfigurasikan model pada backend.",
                 "RECOMMENDATION_NOT_CONFIGURED",
             )
 

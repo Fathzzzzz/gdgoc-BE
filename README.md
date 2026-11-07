@@ -1,6 +1,6 @@
 # FilmLog — Movie Watchlist & Review API
 
-Backend tugas GDGoC UGM: FastAPI + SQLAlchemy + Alembic, PostgreSQL dalam Docker. Frontend companion starter tetap digunakan. Python 3.14.6 digunakan pada pengujian lokal; Docker Desktop harus aktif. Dataset awal: 20 film.
+Backend tugas GDGoC UGM: FastAPI + SQLAlchemy + Alembic, PostgreSQL dalam Docker. Frontend memakai React + Vite + Tailwind CSS (folder frontend/). Python 3.14.6 digunakan pada pengujian lokal; Docker Desktop harus aktif. Dataset awal: 20 film.
 
 ## Menjalankan dari awal
 Dari root repository:
@@ -18,13 +18,15 @@ cd backend
 .venv/bin/python -m app.scripts.seed
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
-Pada terminal kedua, dari root repository:
-```sh
-python3 scripts/serve_frontend.py
-```
-Buka http://localhost:3000/frontend/ dan atur API Base URL ke http://localhost:8000/api. Dokumentasi interaktif: http://localhost:8000/docs; OpenAPI: http://localhost:8000/openapi.json; pemeriksaan proses: http://localhost:8000/health (bukan pemeriksaan koneksi database).
+Dokumentasi interaktif: http://localhost:8000/docs; OpenAPI: http://localhost:8000/openapi.json; pemeriksaan proses: http://localhost:8000/health (bukan pemeriksaan koneksi database).
 
-Jangan menjalankan server statis dari dalam frontend/ jika ingin fallback dataset berfungsi. UI fallback dapat tampil walau backend gagal; periksa API Inspector dan respons endpoint.
+Frontend (React + Vite + Tailwind CSS) dijalankan terpisah dari backend. Pada terminal kedua:
+```sh
+cd frontend
+npm install
+npm run dev
+```
+Buka http://localhost:3000. Vite menggunakan port 3000 (strictPort) karena origin ini sudah diizinkan oleh CORS backend. API Base URL default adalah http://localhost:8000/api dan dapat diubah lewat tombol Settings (tersimpan di localStorage). Dataset fallback kini dibundel ke dalam hasil build, sehingga UI fallback tetap tampil walau backend gagal tanpa perlu server statis root. Instalasi, konfigurasi environment, pengujian, build, dan deployment frontend terpisah dijelaskan di frontend/README.md.
 
 ## Konfigurasi
 Lihat .env.example. DATABASE_URL mengarah ke PostgreSQL host port 55432. JWT memakai algoritma yang dikonfigurasi, expiry default 60 menit. CORS hanya mengizinkan origin frontend yang dikonfigurasi. Rahasia tidak masuk Git.
@@ -77,6 +79,14 @@ cd backend
 ```
 Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama dengan transaksi luar dan savepoint yang di-rollback, sehingga data aplikasi tidak dibersihkan; sequence ID dapat meningkat. Jangan menjalankan terhadap database produksi. Tes provider memakai simulasi Chat Completions. Hasil dan keterbatasan: docs/VERIFIKASI.md.
 
+Pengujian frontend (Vitest + Testing Library, memakai mock fetch sehingga tidak bergantung pada backend/AI berbayar):
+```sh
+cd frontend
+npm test      # sekali jalan
+npm run lint  # pemeriksaan kode (ESLint)
+npm run build # build produksi ke dist/
+```
+
 ## Struktur dan laporan
 - backend/app/core: konfigurasi, keamanan, error.
 - backend/app/database: tabel, koneksi dan sesi.
@@ -84,6 +94,7 @@ Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama deng
 - backend/app/scripts/seed.py: impor JSON idempoten.
 - backend/migrations: riwayat skema Alembic.
 - backend/tests: pengujian API dan batas provider.
+- frontend/: aplikasi React + Vite + Tailwind (lihat frontend/README.md).
 - docs/LAPORAN-IMPLEMENTASI.md: tutorial dari pekerjaan aktual.
 - docs/JURNAL-PEKERJAAN.md: urutan tahap dan commit.
 - docs/ERD.md: relasi database.
