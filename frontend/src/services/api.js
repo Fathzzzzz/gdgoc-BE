@@ -1,13 +1,12 @@
 // Centralized HTTP client and configuration for the FilmLog frontend.
 //
 // Responsibilities:
-// - Resolve the API base URL with a clear priority (in-app setting > env > default).
+// - Resolve the API base URL from the build environment or local default.
 // - Attach the JWT Authorization header to every request.
 // - Normalize error responses into a single ApiError shape.
 // - Emit request logs for the API Inspector and unauthorized events for the
 //   AuthContext to react to (token expiry).
 
-export const API_URL_KEY = 'filmlog_api_url';
 export const TOKEN_KEY = 'filmlog_token';
 export const USER_KEY = 'filmlog_user';
 
@@ -59,30 +58,10 @@ export function getEnvBaseUrl() {
   return import.meta.env?.VITE_API_BASE_URL || '';
 }
 
-/**
- * Priority (highest first):
- *   1. In-app setting persisted under `filmlog_api_url`.
- *   2. Build-time `VITE_API_BASE_URL`.
- *   3. Default `http://localhost:8000/api`.
- */
+/** Resolve the build-time API URL, falling back to the local backend. */
 export function getConfiguredBaseUrl() {
-  const fromStorage = safeGet(API_URL_KEY);
-  const fromEnv = getEnvBaseUrl();
-  const candidate = fromStorage || fromEnv || DEFAULT_API_BASE_URL;
+  const candidate = getEnvBaseUrl() || DEFAULT_API_BASE_URL;
   return String(candidate).trim().replace(/\/+$/, '');
-}
-
-export function setConfiguredBaseUrl(raw) {
-  let value = String(raw ?? '').trim().replace(/\/+$/, '');
-  if (value && !/^https?:\/\//i.test(value)) {
-    value = `http://${value}`;
-  }
-  safeSet(API_URL_KEY, value);
-  return value;
-}
-
-export function clearConfiguredBaseUrl() {
-  safeRemove(API_URL_KEY);
 }
 
 export class ApiError extends Error {

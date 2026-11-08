@@ -79,7 +79,7 @@ npm ci
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000). Frontend menyediakan Discover dengan pencarian/genre/shuffle, detail film, registrasi/login, watchlist, riwayat tontonan, rekomendasi AI, Settings, API Inspector, dan toast. Server Vite memakai port 3000 dengan `strictPort` agar origin sesuai dengan konfigurasi CORS backend.
+Buka [http://localhost:3000](http://localhost:3000). Frontend menyediakan Discover dengan pencarian/genre/shuffle, detail film, registrasi/login, watchlist, riwayat tontonan, rekomendasi AI, API Inspector, dan toast. Server Vite memakai port 3000 dengan `strictPort` agar origin sesuai dengan konfigurasi CORS backend.
 
 ### Menghentikan dan menjalankan kembali
 
@@ -111,9 +111,8 @@ Backend membaca `.env` di root repository, terlepas dari direktori terminal. Mul
 
 API Base URL dibaca dengan prioritas berikut:
 
-1. Settings dalam aplikasi, disimpan sebagai `filmlog_api_url` di `localStorage`.
-2. Environment Vite `VITE_API_BASE_URL`.
-3. Default `http://localhost:8000/api`.
+1. Environment Vite `VITE_API_BASE_URL`.
+2. Default `http://localhost:8000/api`.
 
 Untuk mengganti nilai saat development/build, dari root repository:
 
@@ -121,7 +120,7 @@ Untuk mengganti nilai saat development/build, dari root repository:
 cp frontend/.env.example frontend/.env
 ```
 
-Edit `VITE_API_BASE_URL`, misalnya menjadi `https://api.example.com/api`, lalu mulai ulang Vite atau build ulang. Pengaturan yang sebelumnya disimpan melalui Settings tetap memiliki prioritas tertinggi. API key AI dan rahasia database/JWT tidak ditempatkan pada variabel frontend.
+Edit `VITE_API_BASE_URL`, misalnya menjadi `https://api.example.com/api`, lalu mulai ulang Vite atau build ulang. API Base URL dikelola melalui environment saat build; pengaturan URL lama di browser tidak digunakan. API key AI dan rahasia database/JWT tidak ditempatkan pada variabel frontend.
 
 Jika backend gagal diakses, Discover menampilkan label **data lokal (fallback)** dan memakai `frontend/src/data/movies.json` yang dibundel ke hasil build. Munculnya katalog fallback belum membuktikan koneksi API berhasil. Dataset root `data/movies.json` tetap dibutuhkan oleh seed dan pemilihan katalog rekomendasi backend.
 
@@ -171,7 +170,7 @@ gdgoc-BE/
 
 Modul backend dipisahkan berdasarkan fitur. Router menangani HTTP, schema memvalidasi input/output, service menangani aturan bisnis, dan repository movies menyediakan query katalog. Query review yang sederhana tetap berada di router. Model dikumpulkan dalam satu file agar relasi antarfitur mudah ditinjau.
 
-Frontend memakai shared context untuk sesi, katalog, daftar pribadi, konfigurasi API, dan toast. Auth berada di atas context data pribadi agar perubahan sesi dapat membuang respons request yang sudah tidak relevan. `services/api.js` memusatkan header JWT, pembacaan API Base URL, error, dan log API Inspector.
+Frontend memakai shared context untuk sesi, katalog, daftar pribadi, log request API, dan toast. Auth berada di atas context data pribadi agar perubahan sesi dapat membuang respons request yang sudah tidak relevan. `services/api.js` memusatkan header JWT, pembacaan API Base URL, error, dan log API Inspector.
 
 ## Database dan seeding
 
@@ -396,7 +395,7 @@ Untuk deployment backend, siapkan PostgreSQL yang dapat dijangkau layanan aplika
 | Docker tidak dapat dihubungi | Aktifkan Docker, lalu jalankan kembali `docker compose up -d --wait` dari root repository. |
 | Login database gagal | Cocokkan `DATABASE_URL` dengan user/password/database dan port Compose. Mengubah `.env` tidak mengganti password role pada volume yang sudah diinisialisasi. |
 | Katalog kosong atau tabel tidak ditemukan | Jalankan migrasi dan seed; periksa `GET /api/movies` secara langsung. |
-| UI menampilkan data fallback atau CORS/ERR | Pastikan backend aktif, API Base URL benar, dan origin frontend terdaftar di `CORS_ORIGINS`. Periksa Settings yang tersimpan di browser. |
+| UI menampilkan data fallback atau CORS/ERR | Pastikan backend aktif, API Base URL benar, dan origin frontend terdaftar di `CORS_ORIGINS`. Periksa `VITE_API_BASE_URL` dan build ulang frontend setelah perubahan. |
 | Port frontend 3000 sudah dipakai | Hentikan proses yang memakai port tersebut. Jika port Vite diubah, sesuaikan juga origin CORS. |
 | Rekomendasi menghasilkan 503 | Periksa key, base URL, ID model, ketersediaan katalog, dan akses/kuota provider. Mulai ulang backend setelah mengubah `.env`. |
 | Rekomendasi menghasilkan 502 atau 504 | 502 berarti output provider gagal validasi; 504 berarti request provider timeout. Periksa konfigurasi dan layanan provider. |

@@ -1,8 +1,6 @@
-import { Settings, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWatchlist } from '../context/WatchlistContext.jsx';
-import { useApi } from '../context/ApiContext.jsx';
-import { useMovies } from '../context/MoviesContext.jsx';
 
 const TABS = [
   { id: 'discover', label: 'Discover' },
@@ -11,13 +9,10 @@ const TABS = [
   { id: 'ai', label: 'AI Recommendations', pulse: true },
 ];
 
-export default function Navbar({ activeTab, onSwitchTab, onOpenAuth, onOpenApiConfig }) {
+export default function Navbar({ activeTab, onSwitchTab, onOpenAuth }) {
   const { isAuthenticated, user, logout } = useAuth();
   const { watchlist } = useWatchlist();
-  const { apiBaseUrl } = useApi();
-  const { isFallback, error } = useMovies();
 
-  const apiOnline = !isFallback && !error;
   const watchlistCount = watchlist.length;
 
   return (
@@ -65,17 +60,6 @@ export default function Navbar({ activeTab, onSwitchTab, onOpenAuth, onOpenApiCo
         </div>
 
         <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={onOpenApiConfig}
-            title="Configure Backend API URL"
-            className="px-2.5 py-1.5 rounded-lg border border-brand-border bg-brand-card hover:bg-brand-surfaceHover text-xs flex items-center gap-1.5 text-brand-muted hover:text-white transition"
-          >
-            <span className={`w-2 h-2 rounded-full ${apiOnline ? 'bg-emerald-500' : 'bg-rose-500'}`} aria-hidden="true" />
-            <span className="font-mono hidden sm:inline">{apiBaseUrl}</span>
-            <Settings className="w-3.5 h-3.5" />
-          </button>
-
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full bg-brand-border flex items-center justify-center font-bold text-xs text-white uppercase border border-brand-border" aria-hidden="true">

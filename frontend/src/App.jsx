@@ -12,7 +12,6 @@ import Toast from './components/Toast.jsx';
 import MovieDetailModal from './components/MovieDetailModal.jsx';
 import ReviewModal from './components/ReviewModal.jsx';
 import AuthModal from './components/AuthModal.jsx';
-import ApiConfigModal from './components/ApiConfigModal.jsx';
 import DiscoverPage from './pages/DiscoverPage.jsx';
 import WatchlistPage from './pages/WatchlistPage.jsx';
 import WatchedPage from './pages/WatchedPage.jsx';
@@ -29,7 +28,6 @@ function FilmLogApp() {
   const [reviewMovieId, setReviewMovieId] = useState(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
-  const [apiConfigOpen, setApiConfigOpen] = useState(false);
 
   const switchTab = useCallback((tab) => {
     setActiveTab(tab);
@@ -67,7 +65,6 @@ function FilmLogApp() {
         activeTab={activeTab}
         onSwitchTab={switchTab}
         onOpenAuth={openAuth}
-        onOpenApiConfig={() => setApiConfigOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -97,14 +94,13 @@ function FilmLogApp() {
       />
       <ReviewModal movie={reviewMovie} onClose={closeReview} />
       <AuthModal open={authOpen} mode={authMode} onModeChange={setAuthMode} onClose={closeAuth} />
-      <ApiConfigModal open={apiConfigOpen} onClose={() => setApiConfigOpen(false)} />
       <Toast />
     </div>
   );
 }
 
 /**
- * Provide shared state (toast, api config/inspector, auth, catalog, watchlist,
+ * Provide shared state (toast, API request logs, auth, catalog, watchlist,
  * watched list) to the whole UI. Auth sits above the account-scoped contexts so
  * they can react to login/logout and discard stale requests.
  */

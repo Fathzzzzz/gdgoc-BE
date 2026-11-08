@@ -1,9 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import {
-  API_URL_KEY,
   DEFAULT_API_BASE_URL,
   getConfiguredBaseUrl,
-  setConfiguredBaseUrl,
   setAuthToken,
   clearAuthToken,
   apiFetch,
@@ -21,19 +19,31 @@ function jsonResponse(body, status = 200) {
   };
 }
 
+beforeEach(() => {
+  vi.stubEnv('VITE_API_BASE_URL', '');
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 describe('getConfiguredBaseUrl', () => {
   it('defaults to the local backend', () => {
     expect(getConfiguredBaseUrl()).toBe(DEFAULT_API_BASE_URL);
   });
 
-  it('prefers the in-app setting over the default', () => {
-    localStorage.setItem(API_URL_KEY, 'http://custom:9000/api/');
-    expect(getConfiguredBaseUrl()).toBe('http://custom:9000/api');
-  });
+  it('sends requests to the environment URL despite an old browser override', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://api.example.com/api/');
+    localStorage.setItem('filmlog_api_url', 'https://old-api.example.com/api');
+    const fetchMock = vi.fn(async () => jsonResponse([], 200));
+    vi.stubGlobal('fetch', fetchMock);
 
-  it('normalizes and persists a new base URL', () => {
-    expect(setConfiguredBaseUrl('localhost:5000/api/')).toBe('http://localhost:5000/api');
-    expect(getConfiguredBaseUrl()).toBe('http://localhost:5000/api');
+    await apiFetch('/movies');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.example.com/api/movies',
+      expect.any(Object),
+    );
   });
 });
 
