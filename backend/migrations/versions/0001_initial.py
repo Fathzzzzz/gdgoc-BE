@@ -16,6 +16,7 @@ def upgrade():
         sa.Column("password_hash", sa.Text(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.UniqueConstraint("email"))
+    
     op.create_table("movies",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=False),
         sa.Column("title", sa.String(255), nullable=False),
@@ -27,6 +28,7 @@ def upgrade():
         sa.Column("synopsis", sa.Text(), nullable=False),
         sa.Column("poster_url", sa.Text(), nullable=False),
         sa.Column("cast", sa.JSON(), nullable=False))
+    
     op.create_table("watchlists",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),

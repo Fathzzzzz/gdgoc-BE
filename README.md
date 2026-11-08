@@ -77,7 +77,7 @@ Gunakan tombol Authorize pada /docs untuk endpoint pribadi.
 cd backend
 .venv/bin/pytest -q
 ```
-Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama dengan transaksi luar dan savepoint yang di-rollback, sehingga data aplikasi tidak dibersihkan; sequence ID dapat meningkat. Jangan menjalankan terhadap database produksi. Tes provider memakai simulasi Chat Completions. Hasil dan keterbatasan: docs/VERIFIKASI.md.
+Migrasi dan seed harus sudah dijalankan. Tests memakai PostgreSQL yang sama dengan transaksi luar dan savepoint yang di-rollback, sehingga data aplikasi tidak dibersihkan; sequence ID dapat meningkat. Jangan menjalankan terhadap database produksi. Tes provider memakai simulasi Chat Completions.
 
 Pengujian frontend (Vitest + Testing Library, memakai mock fetch sehingga tidak bergantung pada backend/AI berbayar):
 ```sh
@@ -87,7 +87,7 @@ npm run lint  # pemeriksaan kode (ESLint)
 npm run build # build produksi ke dist/
 ```
 
-## Struktur dan laporan
+## Struktur proyek
 - backend/app/core: konfigurasi, keamanan, error.
 - backend/app/database: tabel, koneksi dan sesi.
 - backend/app/modules: auth, movies, watchlist, reviews, recommendations.
@@ -95,11 +95,9 @@ npm run build # build produksi ke dist/
 - backend/migrations: riwayat skema Alembic.
 - backend/tests: pengujian API dan batas provider.
 - frontend/: aplikasi React + Vite + Tailwind (lihat frontend/README.md).
-- docs/LAPORAN-IMPLEMENTASI.md: tutorial dari pekerjaan aktual.
-- docs/JURNAL-PEKERJAAN.md: urutan tahap dan commit.
 - docs/ERD.md: relasi database.
 
 Menghentikan backend/frontend: Ctrl+C pada terminal masing-masing. Menghentikan database: `docker compose stop`. Memulai lagi: `docker compose up -d --wait`. Volume menjaga data saat container dibuat ulang; jangan menghapus volume jika ingin mempertahankan data.
 
 ## Penyerahan
-Repository publik dan video 3–5 menit masih perlu disiapkan pengguna. docs/PANDUAN-VIDEO.md memuat susunan demonstrasi. Tidak ada push, deployment publik, atau pengiriman formulir otomatis. Starter: https://github.com/bimoar07/movie-watchlist-starter.
+Repository publik dan video 3–5 menit masih perlu disiapkan pengguna. Tidak ada push, deployment publik, atau pengiriman formulir otomatis. Starter: https://github.com/bimoar07/movie-watchlist-starter.
