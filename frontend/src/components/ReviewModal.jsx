@@ -24,7 +24,7 @@ export default function ReviewModal({ movie, onClose }) {
     setSubmitting(true);
     try {
       await logReview(movie.id, rating, review.trim());
-      showToast('Catatan film berhasil disimpan! ⭐', 'success');
+      showToast('Catatan film berhasil disimpan!', 'success');
       onClose();
     } catch (err) {
       showToast(err.message, 'error');

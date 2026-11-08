@@ -5,9 +5,9 @@ import { useApi } from '../context/ApiContext.jsx';
 import { useMovies } from '../context/MoviesContext.jsx';
 
 const TABS = [
-  { id: 'discover', label: '🎬 Discover' },
-  { id: 'watchlist', label: '📌 Watchlist' },
-  { id: 'watched', label: '⭐ Watched & Reviews' },
+  { id: 'discover', label: 'Discover' },
+  { id: 'watchlist', label: 'Watchlist' },
+  { id: 'watched', label: 'Watched & Reviews' },
   { id: 'ai', label: 'AI Recommendations', pulse: true },
 ];
 

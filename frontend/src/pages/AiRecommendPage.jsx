@@ -46,7 +46,7 @@ export default function AiRecommendPage({ onOpenDetail }) {
       const reasoning = data.reasoning || data.explanation || data.message
         || 'Film ini dipilih berdasarkan kecocokan tema, plot, dan atmosfer yang Anda minta.';
       setResult({ movie: matchedMovie, reasoning });
-      showToast('Rekomendasi film siap! ✨', 'success');
+      showToast('Rekomendasi film siap!', 'success');
     } catch (err) {
       showToast(`AI Recommendation Error: ${err.message}`, 'error');
     } finally {
@@ -125,7 +125,7 @@ export default function AiRecommendPage({ onOpenDetail }) {
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green/20 text-brand-green text-xs font-bold mb-4 border border-brand-green/40">
-              ✨ Rekomendasi Terpilih dari Database Anda
+              Rekomendasi Terpilih dari Database Anda
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 items-start">

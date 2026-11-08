@@ -70,9 +70,8 @@ export default function DiscoverPage({ onOpenDetail, onOpenReview }) {
           role="status"
           className="flex items-start gap-3 p-4 rounded-xl bg-amber-950/20 border border-amber-800/40 text-amber-300 text-sm"
         >
-          <span aria-hidden="true">⚠️</span>
           <p>
-            Backend belum aktif — menampilkan <strong>data lokal (fallback)</strong>. Pastikan server backend
+            Backend belum aktif, menampilkan <strong>data lokal (fallback)</strong>. Pastikan server backend
             berjalan dan kembali tekan <em>Shuffle</em> atau muat ulang halaman.
           </p>
         </div>

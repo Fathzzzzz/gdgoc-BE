@@ -13,7 +13,7 @@ export default function ApiInspector() {
           <span className="w-2 h-2 rounded-full bg-brand-green" />
           <span className="font-mono text-white font-semibold">API Inspector</span>
           <span className="text-[11px] text-brand-muted hidden sm:inline">
-            — See real-time network requests sent to your backend
+            See real-time network requests sent to your backend
           </span>
         </div>
         <button

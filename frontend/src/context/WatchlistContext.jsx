@@ -70,7 +70,7 @@ export function WatchlistProvider({ children }) {
       }
       if (sid !== sessionRef.current) return;
       showToast(
-        isCurrentlyIn ? 'Film dihapus dari watchlist' : 'Berhasil ditambahkan ke watchlist! 📌',
+        isCurrentlyIn ? 'Film dihapus dari watchlist' : 'Berhasil ditambahkan ke watchlist!',
         isCurrentlyIn ? 'info' : 'success',
       );
       // Re-sync with backend truth so the whole UI (Discover buttons, badge)
